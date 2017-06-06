@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cursoandroid.com.conversorgasolinaalcool.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="550dp"
+        android:layout_margin="0dp"
+        android:layout_marginTop="-9dp"
+        android:background="#5e9e4a"
+        android:paddingTop="-16dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0.0">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="300dp"
+            android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="21dp"
+            app:srcCompat="@drawable/logo" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/imageView"
+            android:layout_alignStart="@+id/imageView"
+            android:layout_below="@+id/imageView"
+            android:layout_marginTop="47dp"
+            android:text="Preço Alcool"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/textView"
+            android:layout_alignBottom="@+id/textView"
+            android:layout_alignEnd="@+id/imageView"
+            android:layout_alignRight="@+id/imageView"
+            android:layout_marginEnd="11dp"
+            android:layout_marginRight="11dp"
+            android:text="Preço Gasolina"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/editTextGasolinaID"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/editTextAlcoolId"
+            android:layout_alignBottom="@+id/editTextAlcoolId"
+            android:layout_alignEnd="@+id/imageView"
+            android:layout_alignLeft="@+id/textView2"
+            android:layout_alignRight="@+id/imageView"
+            android:layout_alignStart="@+id/textView2"
+            android:background="@android:color/background_light"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:padding="5dp" />
+
+        <EditText
+            android:id="@+id/editTextAlcoolId"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/textView"
+            android:layout_alignLeft="@+id/textView"
+            android:layout_alignRight="@+id/textView"
+            android:layout_alignStart="@+id/textView"
+            android:layout_below="@+id/textView"
+            android:background="@android:color/background_light"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:padding="5dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:text="Transformar"
+            android:layout_below="@+id/editTextGasolinaID"
+            android:layout_alignLeft="@+id/editTextAlcoolId"
+            android:layout_alignStart="@+id/editTextAlcoolId"
+            android:layout_alignRight="@+id/editTextGasolinaID"
+            android:layout_alignEnd="@+id/editTextGasolinaID"
+            android:id="@+id/buttonTransformarId" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/buttonTransformarId"
+            android:layout_alignStart="@+id/buttonTransformarId"
+            android:layout_below="@+id/buttonTransformarId"
+            android:layout_marginTop="17dp" />
+
+        <TextView
+            android:id="@+id/textViewResultId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/textView3"
+            android:layout_toEndOf="@+id/textView3"
+            android:layout_toRightOf="@+id/textView3"
+            android:text="TextView"
+            android:textSize="24sp" />
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>
