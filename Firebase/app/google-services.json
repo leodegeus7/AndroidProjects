@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "666793780030",
+    "firebase_url": "https://projeto-teste-b7b21.firebaseio.com",
+    "project_id": "projeto-teste-b7b21",
+    "storage_bucket": "projeto-teste-b7b21.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:666793780030:android:e63107a15242a6e4",
+        "android_client_info": {
+          "package_name": "firebase.cursoandroid.com.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "666793780030-11vtub2u66tgt4cg8qj1kpltdfbbjnhv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABCjFRMFB4nlmcP67hV0t0D-ULXKV4FRY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

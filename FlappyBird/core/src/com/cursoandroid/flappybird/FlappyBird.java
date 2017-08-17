@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,191 +12,203 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Random;
 
 public class FlappyBird extends ApplicationAdapter {
 
-    private int count = 0;
-    private SpriteBatch batch;  //criar animações
-    private Texture[] passaro;
+    private SpriteBatch batch;
+    private Texture[] passaros;
     private Texture fundo;
-
     private Texture canoBaixo;
     private Texture canoTopo;
-    private Texture gameOverTexture;
-
+    private Texture gameOver;
+    private Random numeroRandomico;
     private BitmapFont fonte;
-
+    private BitmapFont mensagem;
     private Circle passaroCirculo;
-    private Rectangle canoTopoRectangle;
-    private Rectangle canoBaixoRectangle;
+    private Rectangle retanguloCanoTopo;
+    private Rectangle retanguloCanoBaixo;
+    //private ShapeRenderer shape;
 
-    private ShapeRenderer shape;
+    //Atributos de configuracao
+    private float larguraDispositivo;
+    private float alturaDispositivo;
+    private int estadoJogo=0;// 0-> jogo não iniciado 1-> jogo iniciado 2-> Game Over
+    private int pontuacao=0;
 
-    private int y = 600;
+    private float variacao = 0;
+    private float velocidadeQueda=0;
+    private float posicaoInicialVertical;
+    private float posicaoMovimentoCanoHorizontal;
+    private float espacoEntreCanos;
+    private float deltaTime;
+    private float alturaEntreCanosRandomica;
+    private boolean marcouPonto=false;
 
-    private float passaroWing = 0;
-
-    private int yNovo;
-
-
-    private int tamanhoX;
-    private int tamanhoY;
-    private int pontuacao = 0;
-
-    private boolean subindo;
-
-    private int posicaoHorizontalCanos = 0;
-    private float deltaTime = 0;
-    private int distanciaEntreCanos = 1600;
-    private int distanciaRandom = 0;
-    private boolean randomGerado = false;
-
-    private boolean gameOver = false;
-
+    //Câmera
+    private OrthographicCamera camera;
+    private Viewport viewport;
+    private final float VIRTUAL_WIDTH = 768;
+    private final float VIRTUAL_HEIGHT = 1024;
 
     @Override
-    public void create() {
-        Gdx.app.log("create", "inicializado o jogo");
-        tamanhoX = Gdx.graphics.getWidth();
-        tamanhoY = Gdx.graphics.getHeight();
+    public void create () {
+
         batch = new SpriteBatch();
-        shape = new ShapeRenderer();
-
+        numeroRandomico = new Random();
         passaroCirculo = new Circle();
-        canoBaixoRectangle = new Rectangle();
-        canoTopoRectangle = new Rectangle();
-
+        /*retanguloCanoTopo = new Rectangle();
+        retanguloCanoBaixo = new Rectangle();
+        shape = new ShapeRenderer();*/
         fonte = new BitmapFont();
         fonte.setColor(Color.WHITE);
-        fonte.getData().setScale(8);
+        fonte.getData().setScale(6);
+
+        mensagem = new BitmapFont();
+        mensagem.setColor(Color.WHITE);
+        mensagem.getData().setScale(3);
 
 
-        passaro = new Texture[3];
-        passaro[0] = new Texture("passaro1.png");
-        passaro[1] = new Texture("passaro2.png");
-        passaro[2] = new Texture("passaro3.png");
+        passaros = new Texture[3];
+        passaros[0] = new Texture("passaro1.png");
+        passaros[1] = new Texture("passaro2.png");
+        passaros[2] = new Texture("passaro3.png");
+
+        fundo = new Texture("fundo.png");
         canoBaixo = new Texture("cano_baixo.png");
         canoTopo = new Texture("cano_topo.png");
-        gameOverTexture = new Texture("game_over.png");
-        fundo = new Texture("fundo.png");
-        deltaTime = Gdx.graphics.getDeltaTime();
-        posicaoHorizontalCanos = tamanhoX - canoTopo.getWidth() + 200;
+        gameOver = new Texture("game_over.png");
+
+        /**********************************************
+         * Configuração da câmera
+        * */
+        camera = new OrthographicCamera();
+        camera.position.set(VIRTUAL_WIDTH/2,VIRTUAL_HEIGHT/2, 0);
+        viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+
+        larguraDispositivo = VIRTUAL_WIDTH;
+        alturaDispositivo  = VIRTUAL_HEIGHT;
+
+        posicaoInicialVertical = alturaDispositivo / 2;
+        posicaoMovimentoCanoHorizontal = larguraDispositivo;
+        espacoEntreCanos = 300;
+
     }
 
     @Override
-    public void render() {
-        super.render();
-        if (!randomGerado) {
-            Random random = new Random();
-            distanciaRandom = random.nextInt(1600);
-            randomGerado = true;
-        }
+    public void render () {
+
+        camera.update();
+
+        // Limpar frames anteriores
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
         deltaTime = Gdx.graphics.getDeltaTime();
-        if (!gameOver) {
-            posicaoHorizontalCanos -= deltaTime * 700;
-            if (posicaoHorizontalCanos <= -400) {
-                posicaoHorizontalCanos = tamanhoX - canoTopo.getWidth() + 300;
-                randomGerado = false;
+        variacao += deltaTime * 10;
+        if (variacao > 2) variacao = 0;
+
+        if( estadoJogo == 0 ){//Não iniciado
+
+            if( Gdx.input.justTouched() ){
+                estadoJogo = 1;
+            }
+
+        }else {//Iniciado
+
+            velocidadeQueda++;
+            if (posicaoInicialVertical > 0 || velocidadeQueda < 0)
+                posicaoInicialVertical = posicaoInicialVertical - velocidadeQueda;
+
+            if( estadoJogo == 1 ){//iniciado
+
+                posicaoMovimentoCanoHorizontal -= deltaTime * 200;
+
+                if (Gdx.input.justTouched()) {
+                    velocidadeQueda = -15;
+                }
+
+                //Verifica se o cano saiu inteiramente da tela
+                if (posicaoMovimentoCanoHorizontal < -canoTopo.getWidth()) {
+                    posicaoMovimentoCanoHorizontal = larguraDispositivo;
+                    alturaEntreCanosRandomica = numeroRandomico.nextInt(400) - 200;
+                    marcouPonto = false;
+                }
+
+                //Verifica pontuação
+                if(posicaoMovimentoCanoHorizontal < 120 ){
+                    if( !marcouPonto ){
+                        pontuacao++;
+                        marcouPonto = true;
+                    }
+                }
+
+            }else{// Game Over
+                //Zerar o valores padrões
+                if( Gdx.input.justTouched() ){
+                    estadoJogo = 0;
+                    velocidadeQueda = 0;
+                    pontuacao = 0;
+                    posicaoMovimentoCanoHorizontal = larguraDispositivo;
+                    posicaoInicialVertical = alturaDispositivo / 2;
+                }
 
             }
 
-            if (posicaoHorizontalCanos < 120 && posicaoHorizontalCanos > 0) {
-                pontuacao += 7;
-            }
+
         }
+
+        //Configurar dados de projeção da câmera
+        batch.setProjectionMatrix( camera.combined );
+
         batch.begin();
 
-        passaroWing += Gdx.graphics.getDeltaTime() * 10;
-        if (passaroWing > 2) {
-            passaroWing = 0;
-        }
+        batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
+        batch.draw(canoTopo, posicaoMovimentoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + alturaEntreCanosRandomica);
+        batch.draw(canoBaixo, posicaoMovimentoCanoHorizontal, alturaDispositivo / 2 - canoBaixo.getHeight() - espacoEntreCanos / 2 + alturaEntreCanosRandomica);
+        batch.draw(passaros[(int) variacao], 120, posicaoInicialVertical);
+        fonte.draw(batch, String.valueOf(pontuacao), larguraDispositivo / 2, alturaDispositivo - 50);
 
-        if (Gdx.input.justTouched()) {
-            subindo = true;
-            if (y < tamanhoY) {
-                yNovo = y + 400;
-            } else {
-                yNovo = tamanhoY - 10;
-            }
-
-        }
-        batch.draw(fundo, 0, 0, tamanhoX, tamanhoY);
-        if (!gameOver) {
-            if (subindo) {
-                y += 50;
-            } else {
-                y -= 17;
-            }
-            if (y > yNovo) {
-                subindo = false;
-            }
-        } else {
-            y -= 17;
-            passaroWing = 0;
-        }
-
-        if (y < 15) {
-            y = 5;
-        }
-
-
-        batch.draw(passaro[(int) passaroWing], 120, y, tamanhoX / 15 * tamanhoY / tamanhoX, tamanhoX / 15);
-        Double largura = canoTopo.getWidth() * 2.7;
-        Double altura = canoTopo.getHeight() * 2.7;
-
-
-        batch.draw(canoBaixo, posicaoHorizontalCanos, 0 - distanciaRandom, Integer.valueOf(largura.intValue()), Integer.valueOf(altura.intValue()));
-
-        batch.draw(canoTopo, posicaoHorizontalCanos, 0 + canoBaixo.getHeight() - distanciaRandom + distanciaEntreCanos, Integer.valueOf(largura.intValue()), Integer.valueOf(altura.intValue()));
-
-
-        fonte.draw(batch, String.valueOf(pontuacao), tamanhoX / 2, tamanhoY - 400);
-
-        if (gameOver) {
-
-
-            batch.draw(gameOverTexture, tamanhoX / 2 - gameOverTexture.getWidth() / 2 - 150, tamanhoY - 650, 700, 700 * gameOverTexture.getHeight() / gameOverTexture.getWidth());
-
-            if (Gdx.input.justTouched()) {
-
-                gameOver = !gameOver;
-
-                pontuacao = 0;
-
-                subindo = true;
-
-               posicaoHorizontalCanos = tamanhoX - canoTopo.getWidth() + 200;
-             deltaTime = 0;
-               distanciaEntreCanos = 1600;
-       distanciaRandom = 0;
-               randomGerado = false;
-            }
+        if( estadoJogo == 2 ) {
+            mensagem.draw(batch, "Toque para reiniciar!", larguraDispositivo / 2 - 230, alturaDispositivo / 2 - gameOver.getHeight());
+            batch.draw(gameOver, larguraDispositivo / 2 - gameOver.getWidth() / 2, alturaDispositivo / 2);
         }
 
         batch.end();
 
+        passaroCirculo.set(120 + passaros[0].getWidth() / 2, posicaoInicialVertical + passaros[0].getHeight() / 2, passaros[0].getWidth() / 2);
+        retanguloCanoBaixo = new Rectangle(
+                posicaoMovimentoCanoHorizontal, alturaDispositivo / 2 - canoBaixo.getHeight() - espacoEntreCanos / 2 + alturaEntreCanosRandomica,
+                canoBaixo.getWidth(), canoBaixo.getHeight()
+        );
 
-        passaroCirculo.set(200 - passaro[0].getWidth() / 2, y, 60);
+        retanguloCanoTopo = new Rectangle(
+                posicaoMovimentoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + alturaEntreCanosRandomica,
+                canoTopo.getWidth(), canoTopo.getHeight()
+        );
 
-        canoBaixoRectangle = new Rectangle(posicaoHorizontalCanos, 0 - distanciaRandom, Integer.valueOf(largura.intValue()), Integer.valueOf(altura.intValue()));
+        //Desenhar formas
+        /*shape.begin( ShapeRenderer.ShapeType.Filled);
+        shape.circle(passaroCirculo.x, passaroCirculo.y, passaroCirculo.radius);
+        shape.rect(retanguloCanoBaixo.x, retanguloCanoBaixo.y, retanguloCanoBaixo.width, retanguloCanoBaixo.height);
+        shape.rect(retanguloCanoTopo.x, retanguloCanoTopo.y, retanguloCanoTopo.width, retanguloCanoTopo.height);
+        shape.setColor(Color.RED);
+        shape.end();*/
 
-        canoTopoRectangle = new Rectangle(posicaoHorizontalCanos, 0 + canoBaixo.getHeight() - distanciaRandom + distanciaEntreCanos, Integer.valueOf(largura.intValue()), Integer.valueOf(altura.intValue()));
-
-
-//        shape.begin(ShapeRenderer.ShapeType.Filled);
-//        shape.circle(passaroCirculo.x,passaroCirculo.y,passaroCirculo.radius);
-//        shape.rect(canoBaixoRectangle.x,canoBaixoRectangle.y,canoBaixoRectangle.getWidth(),canoBaixoRectangle.getHeight());
-//        shape.rect(canoTopoRectangle.x,canoTopoRectangle.y,canoTopoRectangle.getWidth(),canoTopoRectangle.getHeight());
-//        shape.setColor(Color.RED);
-//        shape.end();
-
-        if (Intersector.overlaps(passaroCirculo, canoBaixoRectangle) || Intersector.overlaps(passaroCirculo, canoTopoRectangle)) {
-            gameOver = true;
-
+        //Teste de colisão
+        if( Intersector.overlaps( passaroCirculo, retanguloCanoBaixo ) || Intersector.overlaps(passaroCirculo, retanguloCanoTopo)
+                || posicaoInicialVertical <= 0 || posicaoInicialVertical >= alturaDispositivo ){
+            //Gdx.app.log("Colisão", "Houve colisão");
+            estadoJogo = 2;
         }
 
+    }
 
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
     }
 }
