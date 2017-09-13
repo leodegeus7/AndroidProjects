@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "666793780030-sa8fd4jcug3vsulhds00dsvbditn8rcl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "firebase.cursoandroid.com.firebase",
+            "certificate_hash": "57e1f11df0850291c1e20b9e36efdd040a63cd12"
+          }
+        },
+        {
           "client_id": "666793780030-11vtub2u66tgt4cg8qj1kpltdfbbjnhv.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "666793780030-11vtub2u66tgt4cg8qj1kpltdfbbjnhv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
